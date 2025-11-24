@@ -1,0 +1,20 @@
+# Build-Ordner .NET
+bin/
+obj/
+
+# User-spezifische Dateien von Visual Studio / VS Code
+.vs/
+.vscode/
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+
+# Sonstiges
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.log
+*.tmp
