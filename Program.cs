@@ -1,7 +1,8 @@
 using System.Data;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,8 +65,38 @@ app.MapGet("/api/products/{id}", async (IDbConnection db, int id) =>
 });
 
 
+app.MapPost("/api/products", async (IDbConnection db, ProductCreateDto input) =>
+{
+    if (input is null || string.IsNullOrWhiteSpace(input.ProductName))
+        return Results.BadRequest(new { error = "ProductName is required." });
 
+    var sql = """
+        INSERT INTO Products (ProductName, SupplierID, CategoryID, UnitPrice, UnitsInStock)
+        VALUES (@ProductName, @SupplierID, @CategoryID, @UnitPrice, @UnitsInStock);
+        SELECT CAST(SCOPE_IDENTITY() as int);
+    """;
 
+    var newId = await db.ExecuteScalarAsync<int>(sql, input);
+
+    var created = new
+    {
+        ProductID = newId,
+        input.ProductName,
+        input.SupplierID,
+        input.CategoryID,
+        input.UnitPrice,
+        input.UnitsInStock
+    };
+
+    return Results.Created($"/api/products/{newId}", created);
+});
+
+app.MapDelete("/api/products/{id}", async (IDbConnection db, int id) =>
+{
+    var sql = "DELETE FROM Products WHERE ProductID = @id";
+    var affected = await db.ExecuteAsync(sql, new { id });
+    return affected == 0 ? Results.NotFound() : Results.NoContent();
+});
 
 
 app.MapGet("/api/customers", async (IDbConnection db) =>
@@ -86,10 +117,9 @@ FROM Customers
 
 
 
-
-
-
-
-
-
 app.Run();
+
+
+public record ProductCreateDto(string ProductName, int? SupplierID, int? CategoryID, decimal? UnitPrice, short? UnitsInStock);
+
+

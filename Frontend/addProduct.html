@@ -1,0 +1,83 @@
+<h1>Add New Product</h1>
+<form id="add-product-form">
+    <label for="product-name">Product Name:</label><br />
+    <input type="text" id="product-name" name="product-name" required /><br /><br />
+
+    <label for="category">Category:</label><br />
+    <input type="text" id="category" name="category" required /><br /><br />
+
+    <label for="supplier">Supplier:</label><br />
+    <input type="text" id="supplier" name="supplier" required /><br /><br />
+
+    <label for="price">Price:</label><br />
+    <input type="number" id="price" name="price" step="0.01" required /><br /><br />
+
+    <label for="units-in-stock">Units In Stock:</label><br />
+    <input type="number" id="units-in-stock" name="units-in-stock" required /><br /><br />
+
+    <button type="submit">Add Product</button>
+</form>
+<script>
+    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const newProduct = {
+            productName: document.getElementById('product-name').value,
+            category: parseInt(document.getElementById('category').value, 10),
+            supplier: parseInt(document.getElementById('supplier').value, 10),
+            price: parseFloat(document.getElementById('price').value),
+            unitsInStock: parseInt(document.getElementById('units-in-stock').value, 10)
+        };
+
+        try {
+            const response = await fetch('http://localhost:5299/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newProduct)
+            });
+
+            if (response.ok) {
+                alert('Product added successfully!');
+                window.location.href = 'index.html';
+            } else {
+                alert('Failed to add product.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while adding the product.');
+        }
+    });
+</script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0 15px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+</style>

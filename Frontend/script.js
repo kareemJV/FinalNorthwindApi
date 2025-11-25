@@ -23,10 +23,34 @@ function renderProducts(products) {
             <td>${product.productName}</td>
             <td>${product.categoryName}</td>
             <td>${product.SupplierName}</td>
-            <td>${product.unitPrice}</td>
+            <td>${product.unitPrice} €</td>
             <td>${product.unitsInStock}</td>
+            <td><button class="delete-btn" data-id="${product.productID}">Delete</button></td>
         `;
         tableBody.appendChild(row);
+    });
+
+    // Add event listeners for delete buttons
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = btn.getAttribute('data-id');
+            if (confirm('Produkt wirklich löschen?')) {
+                try {
+                    const response = await fetch(`http://localhost:5299/api/products/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        // Remove from allProducts and re-render
+                        allProducts = allProducts.filter(p => p.productID != id);
+                        renderProducts(allProducts);
+                    } else {
+                        alert('Löschen fehlgeschlagen!');
+                    }
+                } catch (error) {
+                    alert('Fehler beim Löschen!');
+                }
+            }
+        });
     });
 }
 
@@ -44,3 +68,8 @@ fetchProducts().then(products => {
 });
 
 document.getElementById('search-input').addEventListener('input', handleSearchInput);
+
+document.getElementById('add-product-button').addEventListener('click', () => {
+    window.location.href = 'addProduct.html';
+});
+
